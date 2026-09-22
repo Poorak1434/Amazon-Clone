@@ -1,0 +1,43 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Amazon Sign In{% endblock %}
+
+{% block content %}
+<div style="max-width: 350px; margin: 40px auto; padding: 0 10px;">
+    <div style="background-color: #ffffff; border: 1px solid #ddd; border-radius: 4px; padding: 24px;">
+        <h1 style="font-size: 24px; font-weight: 400; margin-bottom: 20px;">Sign in</h1>
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+            <div style="background-color: #fce4e4; border: 1px solid #f29d11; color: #b12704; padding: 10px; border-radius: 4px; font-size: 12px; margin-bottom: 15px;">
+                Invalid username or password. Please try again.
+            </div>
+            {% endif %}
+
+            <div style="margin-bottom: 15px;">
+                <label style="font-size: 13px; font-weight: bold; display: block; margin-bottom: 4px;">Username</label>
+                <input type="text" name="username" required style="width: 100%; padding: 8px; border: 1px solid #a6a6a6; border-radius: 3px; font-size: 13px;">
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="font-size: 13px; font-weight: bold; display: block; margin-bottom: 4px;">Password</label>
+                <input type="password" name="password" required style="width: 100%; padding: 8px; border: 1px solid #a6a6a6; border-radius: 3px; font-size: 13px;">
+            </div>
+
+            <button type="submit" class="btn-add-cart" style="width: 100%; padding: 8px; font-size: 13px;">Continue</button>
+        </form>
+
+        <p style="font-size: 11px; color: #555; margin-top: 15px; line-height: 1.4;">
+            By continuing, you agree to Amazon's <a href="#" style="color: #007185;">Conditions of Use</a> and <a href="#" style="color: #007185;">Privacy Notice</a>.
+        </p>
+    </div>
+
+    <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #767676; border-top: 1px solid #e7e7e7; padding-top: 15px;">
+        <span>New to Amazon?</span>
+        <a href="{% url 'register' %}" class="btn-add-cart" style="display: block; background: #f0f2f2; border: 1px solid #a8a8a8; margin-top: 10px; padding: 6px; color: #111;">Create your Amazon account</a>
+    </div>
+</div>
+{% endblock %}

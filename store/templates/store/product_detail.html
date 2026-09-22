@@ -1,0 +1,179 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}{{ product.title }} - Amazon.in{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <!-- COL 1: THUMBNAILS -->
+    <div class="thumbnail-col">
+        <img src="{{ product.main_image }}" class="thumb-img active" data-large-url="{{ product.main_image }}">
+        {% for add_img in product.additional_images.all %}
+        <img src="{{ add_img.image_url }}" class="thumb-img" data-large-url="{{ add_img.image_url }}">
+        {% endfor %}
+    </div>
+
+    <!-- COL 2: MAIN IMAGE -->
+    <div class="main-img-box">
+        <img src="{{ product.main_image }}" id="mainDetailImg" alt="{{ product.title }}">
+    </div>
+
+    <!-- COL 3: PRODUCT INFO -->
+    <div class="detail-info">
+        <div class="detail-brand">Brand: {{ product.brand }}</div>
+        <h1 class="detail-title">{{ product.title }}</h1>
+        
+        <!-- Ratings -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <div class="rating-stars">
+                <i class="fa-solid fa-star"></i> {{ product.rating }}
+            </div>
+            <a href="#reviews" class="rating-count">{{ product.rating_count }} ratings</a>
+            <span style="color: #ccc;">|</span>
+            <a href="#" style="font-size: 13px;">Search in page</a>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #e7e7e7;">
+
+        <!-- Deal Badge & Price -->
+        <div>
+            {% if product.badge %}
+            <span class="badge-red" style="font-size: 13px;">{{ product.badge }}</span>
+            {% endif %}
+            
+            <div style="margin-top: 8px; display: flex; align-items: baseline; gap: 10px;">
+                <span style="font-size: 14px; color: #cc0c39; font-weight: bold;">-{{ product.discount_percentage }}%</span>
+                <span style="font-size: 28px; font-weight: 500; color: #0f1111;">₹{{ product.price|floatformat:0 }}</span>
+            </div>
+
+            <div style="font-size: 13px; color: #565959; margin-top: 4px;">
+                M.R.P.: <span style="text-decoration: line-through;">₹{{ product.original_price|floatformat:0 }}</span>
+            </div>
+            <div style="font-size: 13px; color: #007600; font-weight: bold; margin-top: 2px;">
+                You Save: ₹{{ product.savings|floatformat:0 }} ({{ product.discount_percentage }}%)
+            </div>
+            <div style="font-size: 12px; color: #565959; margin-top: 2px;">Inclusive of all taxes</div>
+        </div>
+
+        <!-- Offers Widget -->
+        <div style="border: 1px solid #e7e7e7; border-radius: 8px; padding: 12px; background-color: #fcfcfc;">
+            <div style="font-weight: bold; font-size: 13px; margin-bottom: 8px;"><i class="fa-solid fa-tags" style="color: #e77600;"></i> Offers & Discounts</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px;">
+                <div style="border: 1px solid #ddd; padding: 8px; border-radius: 4px; background: #fff;">
+                    <strong>Bank Offer</strong>
+                    <p style="color: #555; margin-top: 4px;">Upto 10% Instant Discount on SBI Credit Cards.</p>
+                </div>
+                <div style="border: 1px solid #ddd; padding: 8px; border-radius: 4px; background: #fff;">
+                    <strong>No Cost EMI</strong>
+                    <p style="color: #555; margin-top: 4px;">Avail No Cost EMI on select cards.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Specifications Table -->
+        {% if product.specifications %}
+        <div>
+            <h3 style="font-size: 15px; font-weight: bold; margin-bottom: 8px;">Technical Details</h3>
+            <table class="specs-table">
+                {% for key, val in product.specifications.items %}
+                <tr>
+                    <td style="font-weight: bold; width: 40%; color: #555;">{{ key }}</td>
+                    <td>{{ val }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Description -->
+        <div>
+            <h3 style="font-size: 15px; font-weight: bold; margin-bottom: 8px;">About this item</h3>
+            <p style="font-size: 13px; line-height: 1.6; color: #333;">{{ product.description }}</p>
+        </div>
+    </div>
+
+    <!-- COL 4: BUY BOX -->
+    <div class="buy-box">
+        <div style="font-size: 24px; font-weight: 500; color: #0f1111;">₹{{ product.price|floatformat:0 }}</div>
+        
+        <div style="font-size: 13px; color: #007185;">
+            {% if product.is_prime %}
+            <span class="prime-badge"><i class="fa-solid fa-check"></i> prime</span>
+            {% endif %}
+            FREE delivery <strong>Tomorrow</strong>. Order within 4 hrs 12 mins.
+        </div>
+
+        <div style="font-size: 13px; color: #565959;">
+            <i class="fa-solid fa-location-dot"></i> Deliver to <strong>{{ user_name }} - {{ user_city }} {{ user_pincode }}</strong>
+        </div>
+
+        <div class="stock-in">
+            {% if product.stock > 0 %}In Stock{% else %}<span style="color:#b12704;">Out of Stock</span>{% endif %}
+        </div>
+
+        <form action="{% url 'add_to_cart' product.id %}" method="POST">
+            {% csrf_token %}
+            <div style="margin-bottom: 12px;">
+                <label style="font-size: 13px; font-weight: bold;">Quantity:</label>
+                <select name="quantity" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; margin-left: 6px;">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-add-cart">Add to Cart</button>
+        </form>
+
+        <form action="{% url 'add_to_cart' product.id %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" onclick="setTimeout(()=> window.location='{% url 'checkout' %}', 300)" class="btn-buy-now">Buy Now</button>
+        </form>
+
+        <div style="font-size: 12px; color: #565959; margin-top: 10px; display: grid; grid-template-columns: 100px 1fr; gap: 4px;">
+            <span>Ships from</span> <span>Amazon.in</span>
+            <span>Sold by</span> <span style="color: #007185;">{{ product.brand }} Retail</span>
+            <span>Payment</span> <span style="color: #007185;">Secure transaction</span>
+        </div>
+    </div>
+</div>
+
+<!-- CUSTOMER REVIEWS SECTION -->
+<div style="background-color: #ffffff; max-width: 1400px; margin: 20px auto; padding: 24px; border-radius: 4px;" id="reviews">
+    <h2 style="font-size: 21px; font-weight: bold; margin-bottom: 15px;">Customer Reviews</h2>
+    
+    <div style="display: grid; grid-template-columns: 300px 1fr; gap: 30px;">
+        <div>
+            <div style="font-size: 48px; font-weight: bold; color: #0f1111;">{{ product.rating }} <span style="font-size: 20px; color: #ffa41c;">★</span></div>
+            <div style="font-size: 14px; color: #565959; margin-bottom: 15px;">{{ product.rating_count }} global ratings</div>
+            <hr>
+            <p style="font-size: 13px; font-weight: bold; margin-top: 15px;">Review this product</p>
+            <p style="font-size: 12px; color: #565959; margin-bottom: 10px;">Share your thoughts with other customers</p>
+            <button class="btn-add-cart" style="background: #fff; border: 1px solid #d5d9d9;">Write a customer review</button>
+        </div>
+
+        <div>
+            {% for review in reviews %}
+            <div style="border-bottom: 1px solid #e7e7e7; padding-bottom: 15px; margin-bottom: 15px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <i class="fa-solid fa-circle-user" style="font-size: 24px; color: #888;"></i>
+                    <span style="font-weight: bold; font-size: 13px;">{{ review.user.username }}</span>
+                </div>
+                <div style="color: #ffa41c; font-size: 13px;">
+                    <i class="fa-solid fa-star"></i> {{ review.rating }} ★ <strong>{{ review.title }}</strong>
+                </div>
+                <div style="font-size: 12px; color: #565959; margin: 4px 0;">
+                    Reviewed in India on {{ review.created_at|date:"d F Y" }} | <span style="color: #c45500; font-weight: bold;">Verified Purchase</span>
+                </div>
+                <p style="font-size: 13px; color: #333; line-height: 1.4;">{{ review.comment }}</p>
+            </div>
+            {% empty %}
+            <p style="font-size: 13px; color: #565959;">No customer reviews yet. Be the first to review this product!</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

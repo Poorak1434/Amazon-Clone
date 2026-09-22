@@ -1,0 +1,202 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Online Shopping site in India: Shop Online for Mobiles, Books, Watches, Shoes and More - Amazon.in{% endblock %}</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Amazon CSS -->
+    <link rel="stylesheet" href="{% static 'css/amazon.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- TOP HEADER -->
+    <header class="amazon-header">
+        <a href="{% url 'home' %}" class="header-logo">
+            <span class="logo-text">amazon<span class="logo-in">.in</span></span>
+        </a>
+
+        <!-- Location Pill -->
+        <div class="nav-location" id="navLocationBtn">
+            <i class="fa-solid fa-location-dot"></i>
+            <div class="location-text">
+                <span class="location-line1">Deliver to {{ user_name }}</span>
+                <span class="location-line2">{{ user_city }} {{ user_pincode }}</span>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <form action="{% url 'product_list' %}" method="GET" class="header-search">
+            <select name="category" class="search-select">
+                <option value="">All Categories</option>
+                {% for cat in all_categories %}
+                    <option value="{{ cat.slug }}" {% if selected_category and selected_category.slug == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" name="q" class="search-input" placeholder="Search Amazon.in" value="{{ query|default:'' }}">
+            <button type="submit" class="search-btn">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+        </form>
+
+        <!-- Right Navigation -->
+        <div class="header-nav-right">
+            <!-- Language Selector -->
+            <div class="nav-item">
+                <span class="nav-line1">🇮🇳 EN</span>
+                <span class="nav-line2"><i class="fa-solid fa-caret-down"></i></span>
+            </div>
+
+            <!-- Account & Lists -->
+            {% if user.is_authenticated %}
+            <a href="{% url 'orders' %}" class="nav-item">
+                <span class="nav-line1">Hello, {{ user.first_name|default:user.username }}</span>
+                <span class="nav-line2">Account & Lists <i class="fa-solid fa-caret-down"></i></span>
+            </a>
+            {% else %}
+            <a href="{% url 'login' %}" class="nav-item">
+                <span class="nav-line1">Hello, sign in</span>
+                <span class="nav-line2">Account & Lists <i class="fa-solid fa-caret-down"></i></span>
+            </a>
+            {% endif %}
+
+            <!-- Returns & Orders -->
+            <a href="{% url 'orders' %}" class="nav-item">
+                <span class="nav-line1">Returns</span>
+                <span class="nav-line2">& Orders</span>
+            </a>
+
+            <!-- Cart -->
+            <a href="{% url 'cart' %}" class="nav-cart">
+                <div class="cart-icon-wrap">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span class="cart-count" id="cartCountBadge">{{ global_cart_count }}</span>
+                </div>
+                <span class="cart-text">Cart</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- SUB-NAV BAR -->
+    <nav class="amazon-subnav">
+        <a href="{% url 'product_list' %}" class="subnav-all">
+            <i class="fa-solid fa-bars"></i> All
+        </a>
+        <a href="#" class="subnav-item subnav-highlight">Rufus</a>
+        <a href="{% url 'product_list' %}?category=grocery" class="subnav-item">Fresh</a>
+        <a href="#" class="subnav-item">Hotels</a>
+        <a href="{% url 'product_list' %}" class="subnav-item">Today's Deals</a>
+        <a href="#" class="subnav-item">Coupons</a>
+        <a href="{% url 'product_list' %}?category=grocery" class="subnav-item">Grocery & Gourmet Foods</a>
+        <a href="#" class="subnav-item">Gift Cards</a>
+        <a href="#" class="subnav-item">Amazon Pay</a>
+        <a href="{% url 'product_list' %}?category=electronics" class="subnav-item">Health, Household & Personal Care</a>
+        <a href="#" class="subnav-item">Gift Ideas</a>
+        <a href="#" class="subnav-item">Sell</a>
+        <a href="{% url 'product_list' %}?prime=1" class="subnav-item subnav-highlight">Prime <i class="fa-solid fa-caret-down"></i></a>
+        <a href="#" class="subnav-item">AmazonBasics</a>
+        <a href="#" class="subnav-item">Subscribe & Save</a>
+    </nav>
+
+    <!-- Django Messages -->
+    {% if messages %}
+    <div style="max-width: 1400px; margin: 10px auto; padding: 0 20px;">
+        {% for message in messages %}
+        <div style="background-color: #d4edda; color: #155724; padding: 12px 20px; border-radius: 4px; border: 1px solid #c3e6cb; margin-bottom: 10px;">
+            <i class="fa-solid fa-circle-check"></i> {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- MAIN CONTENT BLOCK -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="amazon-footer">
+        <div class="back-to-top" id="backToTopBtn">
+            Back to top
+        </div>
+
+        <div class="footer-links">
+            <div class="footer-col">
+                <h3>Get to Know Us</h3>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Press Releases</a></li>
+                    <li><a href="#">Amazon Science</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Connect with Us</h3>
+                <ul>
+                    <li><a href="#">Facebook</a></li>
+                    <li><a href="#">Twitter / X</a></li>
+                    <li><a href="#">Instagram</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Make Money with Us</h3>
+                <ul>
+                    <li><a href="#">Sell on Amazon</a></li>
+                    <li><a href="#">Sell under Amazon Accelerator</a></li>
+                    <li><a href="#">Protect and Build Your Brand</a></li>
+                    <li><a href="#">Amazon Global Selling</a></li>
+                    <li><a href="#">Become an Affiliate</a></li>
+                    <li><a href="#">Fulfillment by Amazon</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Let Us Help You</h3>
+                <ul>
+                    <li><a href="#">COVID-19 and Amazon</a></li>
+                    <li><a href="#">Your Account</a></li>
+                    <li><a href="#">Returns Centre</a></li>
+                    <li><a href="#">100% Purchase Protection</a></li>
+                    <li><a href="#">Amazon App Download</a></li>
+                    <li><a href="#">Help</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2026 Amazon.in Clone - Developed with Django & Vanilla CSS. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Pincode / Location Modal -->
+    <div class="modal-overlay" id="locationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Choose your location</span>
+                <span style="cursor:pointer;" id="closeModalBtn">&times;</span>
+            </div>
+            <p style="font-size: 13px; color: #565959; margin-bottom: 15px;">
+                Select a delivery location to see product availability and delivery options.
+            </p>
+            <form action="{% url 'set_location' %}" method="POST">
+                {% csrf_token %}
+                <div style="margin-bottom: 12px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; margin-bottom:4px;">City / Town</label>
+                    <input type="text" name="city" value="{{ user_city }}" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; margin-bottom:4px;">Pincode</label>
+                    <input type="text" name="pincode" value="{{ user_pincode }}" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+                </div>
+                <button type="submit" class="btn-add-cart">Apply Location</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Amazon JS -->
+    <script src="{% static 'js/amazon.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

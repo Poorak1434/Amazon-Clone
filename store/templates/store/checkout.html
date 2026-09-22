@@ -1,0 +1,120 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Amazon.in Checkout{% endblock %}
+
+{% block content %}
+<div style="max-width: 1100px; margin: 20px auto; padding: 0 20px;">
+    <h1 style="font-size: 26px; font-weight: 400; margin-bottom: 20px;">Checkout ({{ cart.total_items }} items)</h1>
+
+    <form action="{% url 'place_order' %}" method="POST" style="display: grid; grid-template-columns: 1fr 340px; gap: 20px;">
+        {% csrf_token %}
+
+        <!-- LEFT SECTION: ADDRESS & PAYMENT -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            
+            <!-- SECTION 1: DELIVERY ADDRESS -->
+            <div style="background-color: #ffffff; padding: 20px; border-radius: 4px; border: 1px solid #ddd;">
+                <h2 style="font-size: 18px; font-weight: bold; color: #c45500; margin-bottom: 15px;">1. Select a delivery address</h2>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="font-size: 12px; font-weight: bold;">Full Name</label>
+                        <input type="text" name="full_name" value="{{ address.full_name|default:'Poorak Pandey' }}" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 4px;">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; font-weight: bold;">Mobile Number</label>
+                        <input type="text" name="mobile" value="{{ address.mobile_number|default:'+91 9876543210' }}" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 4px;">
+                    </div>
+                </div>
+
+                <div style="margin-top: 12px;">
+                    <label style="font-size: 12px; font-weight: bold;">Flat, House no., Building, Company, Apartment</label>
+                    <input type="text" name="address_line" value="{{ address.flat_house|default:'House No 42, Sector 15' }}" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 4px;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 12px;">
+                    <div>
+                        <label style="font-size: 12px; font-weight: bold;">City / Town</label>
+                        <input type="text" name="city" value="{{ address.town_city|default:user_city }}" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 4px;">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; font-weight: bold;">State</label>
+                        <input type="text" name="state" value="{{ address.state|default:'Haryana' }}" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 4px;">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; font-weight: bold;">Pincode</label>
+                        <input type="text" name="pincode" value="{{ address.pincode|default:user_pincode }}" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 4px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: PAYMENT METHOD -->
+            <div style="background-color: #ffffff; padding: 20px; border-radius: 4px; border: 1px solid #ddd;">
+                <h2 style="font-size: 18px; font-weight: bold; color: #c45500; margin-bottom: 15px;">2. Select a payment method</h2>
+                
+                <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; border: 1px solid #eee; border-radius: 4px; background: #fafafa;">
+                        <input type="radio" name="payment_method" value="Amazon Pay Balance / UPI" checked>
+                        <span><strong>Amazon Pay Balance / UPI</strong> (Fastest & Instant Refund)</span>
+                    </label>
+
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; border: 1px solid #eee; border-radius: 4px; background: #fafafa;">
+                        <input type="radio" name="payment_method" value="Credit or Debit Card">
+                        <span><strong>Credit or Debit Card</strong> (Visa, MasterCard, RuPay)</span>
+                    </label>
+
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; border: 1px solid #eee; border-radius: 4px; background: #fafafa;">
+                        <input type="radio" name="payment_method" value="Net Banking">
+                        <span><strong>Net Banking</strong> (SBI, HDFC, ICICI, Axis)</span>
+                    </label>
+
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; border: 1px solid #eee; border-radius: 4px; background: #fafafa;">
+                        <input type="radio" name="payment_method" value="Cash on Delivery">
+                        <span><strong>Cash on Delivery (COD)</strong></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- SECTION 3: ITEMS PREVIEW -->
+            <div style="background-color: #ffffff; padding: 20px; border-radius: 4px; border: 1px solid #ddd;">
+                <h2 style="font-size: 18px; font-weight: bold; color: #c45500; margin-bottom: 15px;">3. Items and delivery</h2>
+                {% for item in cart_items %}
+                <div style="display: flex; align-items: center; gap: 15px; padding: 8px 0; border-bottom: 1px solid #eee;">
+                    <img src="{{ item.product.main_image }}" style="width: 50px; height: 50px; object-fit: contain;">
+                    <div style="flex: 1; font-size: 13px;">
+                        <strong>{{ item.product.title }}</strong><br>
+                        <span style="color: #555;">Qty: {{ item.quantity }}</span>
+                    </div>
+                    <div style="font-size: 14px; font-weight: bold;">₹{{ item.total_price|floatformat:0 }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- RIGHT SECTION: ORDER SUMMARY -->
+        <div style="background-color: #ffffff; padding: 20px; border-radius: 4px; border: 1px solid #ddd; height: fit-content;">
+            <button type="submit" class="btn-add-cart" style="font-size: 14px; padding: 12px; margin-bottom: 15px;">Place Your Order and Pay</button>
+            <p style="font-size: 11px; color: #565959; text-align: center; margin-bottom: 15px;">
+                By placing your order, you agree to Amazon.in's privacy notice and conditions of use.
+            </p>
+            <hr>
+            <h3 style="font-size: 16px; font-weight: bold; margin: 15px 0 10px 0;">Order Summary</h3>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+                <span>Items:</span>
+                <span>₹{{ cart.subtotal|floatformat:0 }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+                <span>Delivery:</span>
+                <span style="color: #007600; font-weight: bold;">FREE</span>
+            </div>
+            <hr style="margin: 10px 0;">
+            <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; color: #b12704;">
+                <span>Order Total:</span>
+                <span>₹{{ cart.subtotal|floatformat:0 }}</span>
+            </div>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

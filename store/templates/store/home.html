@@ -1,0 +1,160 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Online Shopping site in India: Shop Online for Mobiles, Books, Watches, Shoes and More - Amazon.in{% endblock %}
+
+{% block content %}
+<div class="home-container">
+    <!-- HERO BANNER SLIDER -->
+    <div class="hero-banner-slider">
+        <div class="hero-slide hero-festival">
+            <div class="hero-content">
+                <span style="background-color: #ffd814; color: #111; padding: 4px 12px; border-radius: 4px; font-weight: 800; font-size: 14px;">Starts 8th Oct</span>
+                <h1 style="margin-top: 10px;">Great Indian Festival</h1>
+                <p>Powered by SAMSUNG Galaxy AI | Co-Powered by Intel CORE Ultra</p>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <span class="bank-offer-badge">Up to 10% Instant Discount on Debit/Credit Cards & EMI</span>
+                    <span class="bank-offer-badge" style="background-color: #ffd814; color: #111;">*T&C apply</span>
+                </div>
+            </div>
+            {% if samsung_tv %}
+            <img src="{{ samsung_tv.main_image }}" alt="Great Indian Festival" class="hero-img">
+            {% else %}
+            <img src="https://images.unsplash.com/photo-1593784991095-a205069470b6?w=800&q=80" alt="Great Indian Festival" class="hero-img">
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 4-COLUMN WIDGET GRID OVERLAYING HERO -->
+    <div class="grid-container">
+        <!-- Card 1: Starting ₹399 Deals -->
+        <div class="amazon-card">
+            <div>
+                <h2 class="card-title">Starting ₹399</h2>
+                <p class="card-subtext">Deals on keyboard, Microphone, Audio...</p>
+                <div class="grid-4up">
+                    {% for item in starting_399|slice:":4" %}
+                    <a href="{% url 'product_detail' item.slug %}" class="subitem-card">
+                        <img src="{{ item.main_image }}" alt="{{ item.title }}" class="subitem-img">
+                        <span class="subitem-title">{{ item.title|truncatechars:20 }}</span>
+                    </a>
+                    {% empty %}
+                    <div style="grid-column: span 2; font-size: 12px; color: #666;">Explore top deals</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <a href="{% url 'product_list' %}?category=mobile-accessories" class="card-link">See all deals</a>
+        </div>
+
+        <!-- Card 2: Voice Command Routines (Alexa) -->
+        <div class="amazon-card">
+            <div>
+                <h2 class="card-title">Routines on voice command</h2>
+                <p class="card-subtext">“Alexa, start my day”</p>
+                <div class="grid-4up">
+                    {% for item in alexa_items|slice:":4" %}
+                    <a href="{% url 'product_detail' item.slug %}" class="subitem-card">
+                        <img src="{{ item.main_image }}" alt="{{ item.title }}" class="subitem-img">
+                        <span class="subitem-title">{{ item.title|truncatechars:20 }}</span>
+                    </a>
+                    {% empty %}
+                    <div style="grid-column: span 2; font-size: 12px; color: #666;">Smart Home Accessories</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <a href="{% url 'product_list' %}?category=smart-home" class="card-link">Discover Smart Home</a>
+        </div>
+
+        <!-- Card 3: Up to 30% off Smart rings -->
+        <div class="amazon-card">
+            <div>
+                <h2 class="card-title">Up to 30% off Smart rings</h2>
+                <p class="card-subtext">ŌURA & Premium Wearables</p>
+                {% with ring=smart_rings|first %}
+                {% if ring %}
+                <a href="{% url 'product_detail' ring.slug %}">
+                    <img src="{{ ring.main_image }}" alt="{{ ring.title }}" class="card-single-img">
+                </a>
+                {% endif %}
+                {% endwith %}
+            </div>
+            <a href="{% url 'product_list' %}?q=ring" class="card-link">Shop Smart Rings</a>
+        </div>
+
+        <!-- Card 4: Samsung Neo QLED TV -->
+        <div class="amazon-card">
+            <div>
+                <h2 class="card-title">Samsung Neo QLED TV</h2>
+                <p class="card-subtext">Shop now at 20% off</p>
+                {% if samsung_tv %}
+                <a href="{% url 'product_detail' samsung_tv.slug %}">
+                    <img src="{{ samsung_tv.main_image }}" alt="{{ samsung_tv.title }}" class="card-single-img">
+                </a>
+                {% endif %}
+            </div>
+            <a href="{% url 'product_list' %}?category=electronics" class="card-link">Shop Television & Video</a>
+        </div>
+    </div>
+
+    <!-- HORIZONTAL DEAL CAROUSEL SECTION -->
+    <div class="deal-section">
+        <div class="deal-header">
+            <h2>Recommended deals for you</h2>
+            <a href="{% url 'product_list' %}" style="font-size: 13px; font-weight: bold; color: #007185;">See all deals</a>
+        </div>
+
+        <div class="deal-carousel">
+            {% for prod in deal_products %}
+            <div class="deal-card">
+                <a href="{% url 'product_detail' prod.slug %}" class="deal-img-wrap">
+                    <img src="{{ prod.main_image }}" alt="{{ prod.title }}" class="deal-img">
+                </a>
+                <div>
+                    {% if prod.discount_percentage > 0 %}
+                    <span class="badge-red">Up to {{ prod.discount_percentage }}% off</span>
+                    <span style="font-size: 11px; font-weight: bold; color: #cc0c39;">Great Indian Festival</span>
+                    {% endif %}
+                    
+                    <div style="margin-top: 4px;">
+                        <span class="price-main">₹{{ prod.price|floatformat:0 }}</span>
+                        {% if prod.original_price > prod.price %}
+                        <span class="price-mrp">M.R.P: ₹{{ prod.original_price|floatformat:0 }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="deal-title">
+                        <a href="{% url 'product_detail' prod.slug %}" style="color: #0f1111;">{{ prod.title }}</a>
+                    </div>
+                    <div style="margin-top: 6px;">
+                        <form action="{% url 'add_to_cart' prod.id %}" method="POST" class="ajax-cart-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn-add-cart" style="padding: 4px 8px; font-size: 12px;">Add to Cart</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- SECOND GRID ROW - KEEP SHOPPING FOR -->
+    <div class="grid-container">
+        {% for cat in categories|slice:":4" %}
+        <div class="amazon-card" style="min-height: 340px;">
+            <div>
+                <h2 class="card-title">{{ cat.name }}</h2>
+                <div class="grid-4up">
+                    {% for p in cat.products.all|slice:":4" %}
+                    <a href="{% url 'product_detail' p.slug %}" class="subitem-card">
+                        <img src="{{ p.main_image }}" alt="{{ p.title }}" class="subitem-img">
+                        <span class="subitem-title">{{ p.title|truncatechars:18 }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            <a href="{% url 'product_list' %}?category={{ cat.slug }}" class="card-link">Explore more in {{ cat.name }}</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
