@@ -130,7 +130,7 @@
         <form action="{% url 'add_to_cart' product.id %}" method="POST">
             {% csrf_token %}
             <input type="hidden" name="quantity" value="1">
-            <button type="submit" onclick="setTimeout(()=> window.location='{% url 'checkout' %}', 300)" class="btn-buy-now">Buy Now</button>
+            <button type="submit" onclick="setTimeout(function(){ window.location.href = '{% url 'checkout' %}'; }, 300);" class="btn-buy-now">Buy Now</button>
         </form>
 
         <div style="font-size: 12px; color: #565959; margin-top: 10px; display: grid; grid-template-columns: 100px 1fr; gap: 4px;">

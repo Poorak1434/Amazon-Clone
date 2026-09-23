@@ -2,11 +2,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Q, Avg, Count
 from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.contrib import messages
-from .models import Category, Product, ProductImage, Address, Cart, CartItem, Order, OrderItem, Review
+from .models import Category, Product, ProductImage, Address, Cart, CartItem, Order, OrderItem, Review, Banner
+
 
 def get_or_create_cart(request):
     """Helper function to obtain cart linked to user or session."""
@@ -25,6 +27,7 @@ def home_view(request):
     deal_products = Product.objects.filter(is_deal_of_the_day=True)[:8]
     prime_deals = Product.objects.filter(is_prime=True)[:8]
     featured_products = Product.objects.all()[:12]
+    hero_banner = Banner.objects.filter(is_active=True).first()
 
     # Specific showcase items for Amazon homepage cards
     starting_399 = Product.objects.filter(price__lte=1000)[:4]
@@ -41,8 +44,33 @@ def home_view(request):
         'alexa_items': alexa_items,
         'smart_rings': smart_rings,
         'samsung_tv': samsung_tv,
+        'hero_banner': hero_banner,
     }
     return render(request, 'store/home.html', context)
+
+
+@require_POST
+def add_review_view(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    title = request.POST.get('title', 'Great product').strip()
+    rating = int(request.POST.get('rating', 5))
+    comment = request.POST.get('comment', '').strip()
+    
+    # Use authenticated user or fallback user
+    user = request.user if request.user.is_authenticated else User.objects.filter(is_staff=True).first()
+    if not user:
+        user = User.objects.create(username="customer_" + str(request.session.session_key[:6]))
+
+    Review.objects.create(
+        product=product,
+        user=user,
+        title=title,
+        rating=rating,
+        comment=comment,
+        verified_purchase=True
+    )
+    messages.success(request, "Thank you! Your customer review has been published.")
+    return redirect('product_detail', slug=product.slug)
 
 
 def product_list_view(request):

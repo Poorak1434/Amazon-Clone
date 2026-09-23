@@ -188,6 +188,20 @@ class OrderItem(models.Model):
         return self.price * self.quantity
 
 
+class Banner(models.Model):
+    title = models.CharField(max_length=200, default="Great Indian Festival")
+    subtitle = models.CharField(max_length=300, default="Powered by SAMSUNG Galaxy AI | Co-Powered by Intel CORE")
+    badge_text = models.CharField(max_length=100, default="Starts 8th Oct")
+    bank_offer_text = models.CharField(max_length=200, default="10% Instant Discount on Debit/Credit Cards & EMI")
+    bg_gradient = models.CharField(max_length=200, default="linear-gradient(90deg, #ff512f 0%, #dd2476 100%)")
+    image_url = models.URLField(max_length=800, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+
 class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -202,3 +216,14 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.rating}★ by {self.user.username} for {self.product.title}"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Dynamically recalculate product rating and review count
+        all_reviews = self.product.reviews.all()
+        if all_reviews.exists():
+            avg_rating = sum(r.rating for r in all_reviews) / all_reviews.count()
+            self.product.rating = round(avg_rating, 1)
+            self.product.rating_count = all_reviews.count()
+            self.product.save(update_fields=['rating', 'rating_count'])
+

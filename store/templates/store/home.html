@@ -7,7 +7,7 @@
 <div class="home-container">
     <!-- HERO BANNER SLIDER -->
     <div class="hero-banner-slider">
-        <div class="hero-slide hero-festival" style="{% if hero_banner.bg_gradient %}background: {{ hero_banner.bg_gradient }};{% endif %}">
+        <div class="hero-slide hero-festival" {% if hero_banner and hero_banner.bg_gradient %}style="background: {{ hero_banner.bg_gradient }};"{% endif %}>
             <div class="hero-content">
                 <span style="background-color: #ffd814; color: #111; padding: 3px 10px; border-radius: 4px; font-weight: 800; font-size: 12px;">{{ hero_banner.badge_text|default:"Starts 8th Oct" }}</span>
                 <h1>{{ hero_banner.title|default:"Great Indian Festival" }}</h1>
